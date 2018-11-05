@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QShortcut>
+#include <QMimeData>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -48,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
     movie = new QMovie;
     //movie->setCacheMode(QMovie::CacheAll);
     connect(movie,SIGNAL(frameChanged(int)),this,SLOT(frameChange(int)));
-    ui->label->setMovie(movie);
+    //ui->label->setMovie(movie);
 
     connect(new QShortcut(QKeySequence(Qt::Key_Space),this), SIGNAL(activated()),this, SLOT(playPause()));
     connect(new QShortcut(QKeySequence(Qt::Key_Left),this), SIGNAL(activated()),this, SLOT(on_actionLast_triggered()));
@@ -60,6 +61,23 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::open(QString fileName)
+{
+    movie->setFileName(fileName);
+    ui->label->setMovie(movie);
+    movie->start();
+    ui->actionPlay->setIcon(QIcon(":/pause.png"));
+    //ui->label->resize(movie->currentPixmap().width(),movie->currentPixmap().height());
+    //qDebug() << "Size" << movie->frameRect().size();
+    qDebug() << "Size" << movie->currentPixmap().size();
+    ui->scrollArea->widget()->setMinimumSize(movie->currentPixmap().size());
+    ui->label->resize(movie->frameRect().size());
+    spinbox->setValue(100);
+    slider->setMaximum(movie->frameCount()-1);
+    slider->setValue(0);
+    LS1->setText("打开 " + fileName);
+}
+
 void MainWindow::on_action_open_triggered()
 {
     if(filename == ""){
@@ -67,25 +85,13 @@ void MainWindow::on_action_open_triggered()
     }else{
         filename = QFileDialog::getOpenFileName(this, "打开动画", filename, "动画(*.gif)");
     }
-    if(!filename.isEmpty()){        
-        movie->setFileName(filename);
-        //ui->label->setMovie(movie);
-        movie->start();
-        ui->actionPlay->setIcon(QIcon(":/pause.png"));
-        //ui->label->resize(movie->currentPixmap().width(),movie->currentPixmap().height());
-        //qDebug() << "Size" << movie->frameRect().size();
-        qDebug() << "Size" << movie->currentPixmap().size();
-        ui->scrollArea->widget()->setMinimumSize(movie->currentPixmap().size());
-        ui->label->resize(movie->frameRect().size());
-        spinbox->setValue(100);
-        slider->setMaximum(movie->frameCount()-1);
-        slider->setValue(0);
-        LS1->setText("打开 " + filename);
+    if(!filename.isEmpty()){
+        open(filename);
     }
 }
 
 void MainWindow::on_action_exportAllFrames_triggered()
-{    
+{
     QString dir = "";
     if(filename == ""){
         dir = QFileDialog::getExistingDirectory(this,"保存路径",".", QFileDialog::ShowDirsOnly |QFileDialog::DontResolveSymlinks);
@@ -96,7 +102,7 @@ void MainWindow::on_action_exportAllFrames_triggered()
         for(int n=0; n<movie->frameCount(); n++){
             movie->jumpToFrame(n);
             QImage image = movie->currentImage();
-            QString fn = dir + "/" + QString::number(n) + ".jpg";
+            QString fn = dir + "/" + QString::number(n) + ".png";
             image.save(fn);
             LS1->setText("保存 " + fn);
         }
@@ -110,7 +116,7 @@ void MainWindow::on_action_quit_triggered()
 
 void MainWindow::on_action_changelog_triggered()
 {
-    QMessageBox aboutMB(QMessageBox::NoIcon, "更新历史", "1.0\n2018-05\nQMovie->setCacheMode(QMovie::CacheAll) 在处理大GIF图片时内存暴涨，不得不取消，失去跳帧功能。\n合并播放暂停按钮。\n2017-02\n增加下帧等待时间。\n修复大文件拖动条拖动引起死机的BUG。\n增加一键导出所有帧。\n增加进度条。\n打开GIF图片，暂停、继续、调速、保存当前帧到图片。");
+    QMessageBox aboutMB(QMessageBox::NoIcon, "更新历史", "1.1\n2018-11\n导出jpg改为导出png，增加拖放打开文件。\n\n1.0\n2018-05\nQMovie->setCacheMode(QMovie::CacheAll) 在处理大GIF图片时内存暴涨，不得不取消，失去跳帧功能。\n合并播放暂停按钮。\n2017-02\n增加下帧等待时间。\n修复大文件拖动条拖动引起死机的BUG。\n增加一键导出所有帧。\n增加进度条。\n打开GIF图片，暂停、继续、调速、保存当前帧到图片。");
     aboutMB.exec();
 }
 
@@ -121,7 +127,7 @@ void MainWindow::on_action_aboutQt_triggered()
 
 void MainWindow::on_action_about_triggered()
 {
-    QMessageBox aboutMB(QMessageBox::NoIcon, "关于", "海天鹰GIF播放器 1.0\n一款基于Qt的GIF播放器，可以暂停、继续、调速、保存当前帧到图片。\n作者：黄颖\nE-mail: sonichy@163.com\n主页：sonichy.96.lt");
+    QMessageBox aboutMB(QMessageBox::NoIcon, "关于", "海天鹰GIF播放器 1.1\n一款基于Qt的GIF播放器，可以暂停、继续、调速、保存当前帧到图片。\n作者：黄颖\nE-mail: sonichy@163.com\n主页：sonichy.96.lt");
     aboutMB.setIconPixmap(QPixmap(":/icon.png"));
     aboutMB.exec();
 }
@@ -156,9 +162,9 @@ void MainWindow::on_actionNext_triggered()
 void MainWindow::on_actionSave_triggered()
 {
     if(filename == ""){
-        filename = QFileDialog::getSaveFileName(this, "保存图片", ".", "图片(*.jpg)");
+        filename = QFileDialog::getSaveFileName(this, "保存图片", ".", "图片(*.png)");
     }else{
-        filename = QFileDialog::getSaveFileName(this, "保存图片", filename, "图片(*.jpg)");
+        filename = QFileDialog::getSaveFileName(this, "保存图片", filename, "图片(*.png)");
     }
     if(!filename.isEmpty()){
         QImage image = movie->currentImage();
@@ -174,7 +180,7 @@ void MainWindow::setSpeed(int ps)
 }
 
 void MainWindow::setFrame()
-{    
+{
     bool b = movie->jumpToFrame(slider->value());
     if(b){
         LS1->setText("跳到第 " + QString::number(slider->value()) + " 帧成功");
@@ -210,4 +216,23 @@ void MainWindow::playPause()
         movie->start();
         LS1->setText("开始");
     }
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *e)
+{
+    e->acceptProposedAction();
+}
+
+void MainWindow::dropEvent(QDropEvent *e)
+{
+    QList<QUrl> urls = e->mimeData()->urls();
+    if(urls.isEmpty())
+        return ;
+
+    QString fileName = urls.first().toLocalFile();
+
+    if(fileName.isEmpty())
+        return;
+
+    open(fileName);
 }

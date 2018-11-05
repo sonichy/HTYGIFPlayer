@@ -1,19 +1,10 @@
 [Desktop Entry]
-Categories=Network;FileTransfer;
-Comment=Download URLs
-Exec=/host/HY/Linux/Qt/HTYGIFPlayer/HTYGIFPlayer
-Icon=/host/HY/Linux/Qt/HTYGIFPlayer/icon.png
-Path=/host/HY/Linux/Qt/HTYGIFPlayer
-Name=海天鹰GIF播放器
-Terminal=false
-Type=Application
-[Desktop Entry]
-Name=HTYGIFPlayer
+Name=海天鹰看图
 Comment=
-Exec=/media/sonichy/job/HY/Linux/Qt/HTYGIFPlayer/HTYGIFPlayer
+Exec=/media/sonichy/job/HY/Linux/Qt/HTYGIFPlayer/HTYGIFPlayer %u
 Icon=/media/sonichy/job/HY/Linux/Qt/HTYGIFPlayer/icon.png
 Path=/media/sonichy/job/HY/Linux/Qt/HTYGIFPlayer
 Terminal=false
 Type=Application
-MimeType=
-Categories=
+MimeType=image/gif;
+Categories=Graphics;

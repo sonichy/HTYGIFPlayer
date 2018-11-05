@@ -10,6 +10,9 @@
     <height>600</height>
    </rect>
   </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
+  </property>
   <property name="windowTitle">
    <string>海天鹰GIF播放器</string>
   </property>
@@ -45,7 +48,7 @@
          <x>0</x>
          <y>0</y>
          <width>798</width>
-         <height>511</height>
+         <height>513</height>
         </rect>
        </property>
        <widget class="QLabel" name="label">
@@ -75,7 +78,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>24</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
